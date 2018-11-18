@@ -16,6 +16,7 @@ Wyrozniamy nastepujace tryby pracy:
 
 # TODO
 
-- [ ] Utworzyć repo na gicie
+- [x] Utworzyć repo na gicie
 - [x] Zaimplementować prosty pojedynczy pomiar
+- [ ] Zaimplementować mozliwosc konfiguracji i wyboru tryby pracy w wierszu polecen
 - [ ] Zaimplementować możliwość wielu pomiarów
