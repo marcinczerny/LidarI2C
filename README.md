@@ -1,19 +1,20 @@
-#Projekt obslug Lidaru Lite v3Hp
-##W jezyku Python dla Raspberry Pi
+# LidarI2C
+## Projekt obslug Lidaru Lite v3Hp
+### W jezyku Python dla Raspberry Pi
 
 Używa biblioteki `smbus2` do obsługi i2c w języky Python
 
 Zaleca sie uzywanie zestawu gotowych narzedzi na raspbery `i2ctools`.
 
-#Konfiguracja
+# Konfiguracja
 
-#Tryby pracy
+# Tryby pracy
 Wyrozniamy nastepujace tryby pracy:
 - Pojedynczy pomiar
 - Ciagle pomiary
 - Szybkie pomiary
 
-#TODO
+# TODO
 
 - [ ] Utworzyć repo na gicie
 - [x] Zaimplementować prosty pojedynczy pomiar
