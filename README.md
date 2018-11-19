@@ -6,7 +6,7 @@ Używa biblioteki `smbus2` do obsługi i2c w języky Python
 
 Zaleca sie uzywanie zestawu gotowych narzedzi na raspbery `i2ctools`.
 
-#Ustawienie raspberry pi
+# Ustawienie raspberry pi
 Należy włączyć i2c w urządzeniu, a następnie przejść do edycju pliku konfguracyjnego `sudo nano /boot/config.txt`.
 
 Należy dopisać linię: `i2c_arm_baudrate=400000`, do istniejącej linii `dtparam=i2c_arm=on,`
