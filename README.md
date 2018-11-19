@@ -27,4 +27,10 @@ Wyrozniamy nastepujace tryby pracy:
 - [x] Utworzyć repo na gicie
 - [x] Zaimplementować prosty pojedynczy pomiar
 - [X] Zaimplementować mozliwosc konfiguracji i wyboru tryby pracy w wierszu polecen
-- [ ] Zaimplementować możliwość wielu pomiarów
+- [X] Zaimplementować możliwość wielu pomiarów (tryb pracy ciągłej)
+- [X] Zaimplementować możliwość pomiarów z zadanym okresem
+- [X] Zaimplementować możliwość wychodzenia z programu przy pracy ciągłej
+- [ ] Okomentować kod
+- [ ] Stworzyć dokumentację
+- [ ] Zaimplementować możliwość zmiary adresu I2C lidaru
+- [ ] Zaimplentować tryb testowy do badanie wydajności programu + Lidaru (praca ciągła)
