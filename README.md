@@ -6,6 +6,11 @@ Używa biblioteki `smbus2` do obsługi i2c w języky Python
 
 Zaleca sie uzywanie zestawu gotowych narzedzi na raspbery `i2ctools`.
 
+#Ustawienie raspberry pi
+Należy włączyć i2c w urządzeniu, a następnie przejść do edycju pliku konfguracyjnego `sudo nano /boot/config.txt`.
+
+Należy dopisać linię: `i2c_arm_baudrate=400000`, do istniejącej linii `dtparam=i2c_arm=on,`
+Zapisać plik i zresetować urządzenie
 # Konfiguracja
 Wyróżniamy następujące możliwości konfiguracji:
 - Domyślny
@@ -30,7 +35,7 @@ Wyrozniamy nastepujace tryby pracy:
 - [X] Zaimplementować możliwość wielu pomiarów (tryb pracy ciągłej)
 - [X] Zaimplementować możliwość pomiarów z zadanym okresem
 - [X] Zaimplementować możliwość wychodzenia z programu przy pracy ciągłej
-- [ ] Okomentować kod
-- [ ] Stworzyć dokumentację
+- [X] Okomentować kod
+- [X] Stworzyć dokumentację
 - [ ] Zaimplementować możliwość zmiary adresu I2C lidaru
-- [ ] Zaimplentować tryb testowy do badanie wydajności programu + Lidaru (praca ciągła)
+- [X] Zaimplentować tryb testowy do badanie wydajności programu + Lidaru (praca ciągła)
