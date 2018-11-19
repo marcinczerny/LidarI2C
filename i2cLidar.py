@@ -96,6 +96,32 @@ def configure(configuration,lidarliteAddress):
 		writeConfig(config,lidarliteAddress)
 
 def main(argv):
+	dictConfiguration = {
+	"default" : rangeConfiguration_T.DEFAULT_MODE,
+	"0" : rangeConfiguration_T.DEFAULT_MODE,
+	"hspeedsrange" : rangeConfiguration_T.DEFAULT_RANGE_HIGHER_SPEED_SHORT_RANGE,
+	"1" : rangeConfiguration_T.DEFAULT_RANGE_HIGHER_SPEED_SHORT_RANGE,
+	"hsensivity" : rangeConfiguration_T.HIGH_SENSIVITY,
+	"2" : rangeConfiguration_T.HIGH_SENSIVITY,
+	"lsensivity" : rangeConfiguration_T.LOW_SENSIVITY,
+	"3" : rangeConfiguration_T.LOW_SENSIVITY,
+	"maxrange" : rangeConfiguration_T.MAXIMUM_RANGE,
+	"4" : rangeConfiguration_T.MAXIMUM_RANGE,
+	"srangehspeed": rangeConfiguration_T.SHORT_RANGE_HIGH_SPEED,
+	"5": rangeConfiguration_T.SHORT_RANGE_HIGH_SPEED,
+	"srangehspeedherror" : rangeConfiguration_T.SHORT_RANGE_HIGH_SPEED_HIGHER_ERROR,
+	"6" : rangeConfiguration_T.SHORT_RANGE_HIGH_SPEED_HIGHER_ERROR}
+	
+	dictMode = {
+	"single" : rangeType_T.RANGE_SINGLE,
+	"0" : rangeType_T.RANGE_SINGLE,
+	"continuous" : rangeType_T.RANGE_CONTINOUS,
+	"1" : rangeType_T.RANGE_CONTINOUS,
+	"none" : rangeType_T.RANGE_NONE,
+	"2" : rangeType_T.RANGE_NONE,
+	"timer" : rangeType_T.RANGE_TIMER,
+	"0" : rangeType_T.RANGE_TIMER
+	}
 	mode = rangeType_T.RANGE_SINGLE
 	setting = rangeConfiguration_T.DEFAULT_MODE
 	try:
@@ -108,9 +134,17 @@ def main(argv):
 			print 'test.py -m <mode> -s <setting>'
 			sys.exit()
 		elif opt in ("-m", "--mode"):
-			mode = int(arg)
+			if arg in dictMode:
+				mode = dictMode[arg]
+			else:
+				print 'wrong mode parameter'
+				sys.exit()
 		elif opt in ("-s", "--setting"):
-			setting = int(arg)
+			if arg in dictConfiguration:
+				setting = dictConfiguration[arg]
+			else:
+				print 'wrong setting parameter'
+				sys.exit()
 	print 'mode is "', mode
 	print 'Output file is "', setting		
 	
