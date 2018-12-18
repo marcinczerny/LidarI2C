@@ -1,7 +1,11 @@
+#!/usr/bin/env python
 from smbus2 import SMBusWrapper
 from enum import Enum
 import sys, getopt
 import time
+import rospy
+from msgs.msg import distance
+
 
 # Class For Debugging and monitoring script
 class counter:
@@ -37,42 +41,56 @@ class configurationBase:
 	acqConfigReg = 0x08
 	refCountMax = 0x05
 	thresholdBypass = 0x00
+	a = 0.996619665834702
+	b = 0.0319916768216451
 	
 class configurationShortRangeHighSpeed(configurationBase):
 	sigCountMax = 0x1d
 	acqConfigReg = 0x08
 	refCountMax = 0x03
 	thresholdBypass = 0x00
+	a = 0.996059560501465
+	b = -0.0320527416112777
 	
 class configurationDefaultRangeHigherSpeed(configurationBase):
 	sigCountMax	= 0x80
 	acqConfigReg = 0x00
 	refCountMax = 0x03
 	thresholdBypass = 0x00
+	a = 0.997080778127185
+	b = -0.0318613458613982
 	
 class configurationMaximumRange(configurationBase):
 	sigCountMax = 0xff
 	acqConfigReg = 0x08
 	refCountMax = 0x05
 	thresholdBypass = 0x80
+	a = 0.997461089815644
+	b = -0.0329153375920736
 	
 class configurationHighSensivity(configurationBase):
 	sigCountMax = 0x80
 	acqConfigReg = 0x08
 	refCountMax = 0x05
 	thresholdBypass = 0x80
+	a = 0.996288921030751
+	b = -0.03233669960454
 
 class configurationLowSensivity(configurationBase):
 	sigCountMax = 0x80
 	acqConfigReg = 0x08
 	refCountMax = 0x05
 	thresholdBypass = 0xb0
+	a = 0.996328067914677
+	b =-0.0344698490779917
 
 class configurationShortRangeHighSpeedHigherError(configurationBase):
 	sigCountMax = 0x04
 	acqConfigReg = 0x01
 	refCountMax = 0x03
 	thresholdBypass = 0x00
+	a = 0.995443814170842
+	b = -0.0637529480862986
 
 
 ###############
@@ -140,12 +158,14 @@ def readDistance(bus,devAddress):
 	blockData = bus.read_i2c_block_data(devAddress, 0x0f, 2)
 	distance = (int)(blockData[0] << 8) | blockData[1]
 	return distance
-
+def processDistance(distance,setting):
+	distance = setting.a * distance + setting.b
+	return distance
 #####################################
 ### Lidar Working Modes Functions ###
 #####################################
 
-def singleMeasureMode(bus):
+def singleMeasureMode(bus, setting):
 	DEVICE_ADDRESS = 0x62
 	DEVICE_READYFLAG = 0x01
 	DEVICE_TAKEMES = 0x00
@@ -163,16 +183,19 @@ def singleMeasureMode(bus):
 
 	# 4. Read new distance data from device registers
 	distance = readDistance(bus,DEVICE_ADDRESS)
-	
+
+	#Process distance
+	distance = processDistance(distance, setting)
 	print(distance)
 	
 def noneMeasureMode():
 	distance = 0
 	print(distance)
 
-def continuousMeasureMode(bus,count):
+def continuousMeasureMode(bus,count, setting):
 	DEVICE_ADDRESS = 0x62
-	while(True):
+	while not rospy.is_shutdown():
+
 		# 1. Wait to indicate if device is idle. This must be
 		#    done before triggering a range measurement.	
 		waitForReadyState(bus,DEVICE_ADDRESS)
@@ -182,13 +205,20 @@ def continuousMeasureMode(bus,count):
 		
 		# 3. Read new distance data from device registers
 		distance = readDistance(bus,DEVICE_ADDRESS)
+		
+		#4. Process distance
+		distance = processDistance(distance, setting)
+		now = rospy.get_rostime()
 	
-		print(distance)
+		msg.x = distance
+	
+		pub.publish(msg)
+		# print(distance)
 		
 		#Do debugowania
 		counter.iterator = counter.iterator+1
 		
-def timerMeasureMode(bus, timeInSeconds):
+def timerMeasureMode(bus, timeInSeconds, setting):
 	DEVICE_ADDRESS = 0x62
 	while(True):
 		# 1.  Wait Given Time
@@ -203,7 +233,9 @@ def timerMeasureMode(bus, timeInSeconds):
 		
 		# 4. Read new distance data from device registers
 		distance = readDistance(bus,DEVICE_ADDRESS)
-	
+		
+		# 5. Process distance
+		distance = processDistance(distance, setting)
 		print(distance)
 
 ###############################
@@ -294,20 +326,20 @@ def main(argv):
 		if mode == rangeType_T.RANGE_NONE:
 			noneMeasure()
 		elif mode == rangeType_T.RANGE_SINGLE:
-			singleMeasureMode(bus)
+			singleMeasureMode(bus, setting)
 		elif mode == rangeType_T.RANGE_CONTINOUS:
 			try:
 				start = time.time()
 				count = counter()
-				continuousMeasureMode(bus, count)
+				continuousMeasureMode(bus, count, setting)
 			except (KeyboardInterrupt, SystemExit):
 				end = time.time()
-				print('Duration: ' ,end-start)
-				print('Count: ', counter.iterator)
+				#print('Duration: ' ,end-start)
+				#print('Count: ', counter.iterator)
 				sys.exit()
 		elif mode == rangeType_T.RANGE_TIMER:
 			try:
-				timerMeasureMode(bus, timeInSeconds)
+				timerMeasureMode(bus, timeInSeconds, setting)
 			except (KeyboardInterrupt, SystemExit):
 				sys.exit()
 		else:
@@ -316,4 +348,9 @@ def main(argv):
 
 
 if __name__ == "__main__":
-   main(sys.argv[1:])
+	
+	rospy.init_node('lidar', anonymous=True)
+	pub = rospy.Publisher('lidar', distance, queue_size=10)
+	msg = distance()
+
+	main(sys.argv[1:])
