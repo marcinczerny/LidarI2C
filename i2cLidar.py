@@ -113,6 +113,13 @@ def writeConfig(bus,config,lidarliteAddress):
 
 #Fynction for choosing measurement configuration
 def configure(bus,configuration,lidarliteAddress):
+	config = getConfig(configuration)
+	if config is None:
+		sys.exit()
+	
+	writeConfig(bus,config,lidarliteAddress)
+	
+def getConfig(configuration):
 	if configuration == rangeConfiguration_T.DEFAULT_MODE:
 		config = configurationBase()
 	elif configuration == rangeConfiguration_T.SHORT_RANGE_HIGH_SPEED:
@@ -128,11 +135,8 @@ def configure(bus,configuration,lidarliteAddress):
 	elif configuration == rangeConfiguration_T.SHORT_RANGE_HIGH_SPEED_HIGHER_ERROR:
 		config = configurationShortRangeHighSpeedHigherError()
 	else:
-		sys.exit()
-	
-	writeConfig(bus,config,lidarliteAddress)
-	
-
+		config = None
+	return config
 #Helper function for Lidar readiness status
 def getReadyFlag(bus,devAddress):
 	#device is ready when the LSB of DEVICE_ADDRESS register is 0
@@ -208,6 +212,7 @@ def continuousMeasureMode(bus,count, setting):
 		
 		#4. Process distance
 		distance = processDistance(distance, setting)
+		#print(distance)
 		now = rospy.get_rostime()
 	
 		msg.x = distance
@@ -322,16 +327,16 @@ def main(argv):
 		DEVICE_TAKEMES = 0x00
 
 		configure(bus,setting, DEVICE_ADDRESS)
-		
+		config = getConfig(setting)
 		if mode == rangeType_T.RANGE_NONE:
 			noneMeasure()
 		elif mode == rangeType_T.RANGE_SINGLE:
-			singleMeasureMode(bus, setting)
+			singleMeasureMode(bus, config)
 		elif mode == rangeType_T.RANGE_CONTINOUS:
 			try:
 				start = time.time()
 				count = counter()
-				continuousMeasureMode(bus, count, setting)
+				continuousMeasureMode(bus, count, config)
 			except (KeyboardInterrupt, SystemExit):
 				end = time.time()
 				#print('Duration: ' ,end-start)
@@ -339,7 +344,7 @@ def main(argv):
 				sys.exit()
 		elif mode == rangeType_T.RANGE_TIMER:
 			try:
-				timerMeasureMode(bus, timeInSeconds, setting)
+				timerMeasureMode(bus, timeInSeconds, config)
 			except (KeyboardInterrupt, SystemExit):
 				sys.exit()
 		else:
